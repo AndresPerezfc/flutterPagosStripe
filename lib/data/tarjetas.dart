@@ -7,7 +7,7 @@ final List<TarjetaCredito> tarjetas = <TarjetaCredito>[
       brand: 'visa',
       cvv: '213',
       expiracyDate: '01/25',
-      cardHolderName: 'Fernando Herrera'),
+      cardHolderName: 'Andrés Pérez'),
   TarjetaCredito(
       cardNumberHidden: '5555',
       cardNumber: '5555555555554444',

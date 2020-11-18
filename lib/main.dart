@@ -13,8 +13,8 @@ class MyApp extends StatelessWidget {
       initialRoute: 'home',
       debugShowCheckedModeBanner: false,
       theme: ThemeData.light().copyWith(
-          primaryColor: Color(0xff5abd8c),
-          scaffoldBackgroundColor: Color(0xff21232A)),
+        primaryColor: Color(0xff5abd8c),
+      ),
       routes: {
         'home': (_) => HomePage(),
         'pago_completo': (_) => PagoCompletoPage(),
