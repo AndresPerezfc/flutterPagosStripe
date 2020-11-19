@@ -4,11 +4,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:stripe_app/bloc/pagar/pagar_bloc.dart';
+import 'package:stripe_app/helpers/helpers.dart';
+import 'package:stripe_app/services/stripe_service.dart';
+import 'package:stripe_payment/stripe_payment.dart';
 
 class TotalPayButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
+    final pagarBloc = context.bloc<PagarBloc>().state;
 
     return Container(
       width: width,
@@ -27,7 +31,7 @@ class TotalPayButton extends StatelessWidget {
             children: [
               Text("Total",
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600)),
-              Text("250.55 COP",
+              Text("${pagarBloc.montoPagar} ${pagarBloc.moneda}",
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold))
             ],
           ),
@@ -71,7 +75,29 @@ class _BtnPay extends StatelessWidget {
           ),
         ],
       ),
-      onPressed: () {},
+      onPressed: () async {
+        mostrarLoading(context);
+        final stripeService = new StripeService();
+        final state = context.bloc<PagarBloc>().state;
+        final tarjeta = state.tarjeta;
+        final mesano = tarjeta.expiracyDate.split('/');
+
+        final resp = await stripeService.pagarConTarjetaExiste(
+            amount: state.montoPagarString,
+            currency: state.moneda,
+            card: CreditCard(
+                number: tarjeta.cardNumber,
+                expMonth: int.parse(mesano[0]),
+                expYear: int.parse(mesano[1])));
+
+        Navigator.pop(context);
+
+        if (resp.ok) {
+          mostrarAlerta(context, "Tarjeta Ok", "Todo Correcto");
+        } else {
+          mostrarAlerta(context, "Algo salió mal :(", resp.msg);
+        }
+      },
     );
   }
 
