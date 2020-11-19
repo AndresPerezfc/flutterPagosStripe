@@ -23,11 +23,14 @@ class HomePage extends StatelessWidget {
           IconButton(
               icon: Icon(Icons.add),
               onPressed: () async {
+                mostrarLoading(context);
                 final amount = pagarBloc.state.montoPagarString;
                 final currency = pagarBloc.state.moneda;
                 final response = await this
                     .stripeService
                     .pagarConNuevaTarjeta(amount: amount, currency: currency);
+
+                Navigator.pop(context);
 
                 if (response.ok) {
                   mostrarAlerta(context, "Tarjeta Ok", "Todo Correcto");
