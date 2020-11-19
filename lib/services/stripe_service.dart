@@ -1,4 +1,6 @@
+import 'package:dio/dio.dart';
 import 'package:meta/meta.dart';
+import 'package:stripe_app/models/payment_intent_response.dart';
 import 'package:stripe_app/models/stripe_custom_response.dart';
 import 'package:stripe_payment/stripe_payment.dart';
 
@@ -13,10 +15,14 @@ class StripeService {
 
   String _paymentApiUrl = 'https://api.stripe.com/v1/payment_intents';
 
-  String _secretKey =
+  static String _secretKey =
       'sk_test_51Hp4lPIfVYR5ciPuYtbBxeFrZ2bMprKpiKHVWEyVXjrITh7gNIVsFSap4sVI6c0rMx5efSSDVNlpI57y10LJwu4N00R7z2MFzE';
   String _apiKey =
       'pk_test_51Hp4lPIfVYR5ciPumQdh1XxHAulm5BPWU0Ti4U8cjb3MWQcDC7gOS0ZwznDvGJIlzsXtRBKgdqo0tK4UvNt1q2jz0091569IQp';
+
+  final headerOptions = new Options(
+      contentType: Headers.formUrlEncodedContentType,
+      headers: {'Authorization': 'Bearer ${StripeService._secretKey}'});
 
   void init() {
     StripePayment.setOptions(StripeOptions(
@@ -40,6 +46,8 @@ class StripeService {
           CardFormPaymentRequest());
 
       //crear el intent
+      final resp =
+          await this._crearPaymentIntent(amount: amount, currency: currency);
 
       return StripeCustomResponse(ok: true);
     } catch (e) {
@@ -52,10 +60,23 @@ class StripeService {
     @required String currency,
   }) async {}
 
-  Future _crearPaymentIntent({
+  Future<PaymentIntentResponse> _crearPaymentIntent({
     @required String amount,
     @required String currency,
-  }) async {}
+  }) async {
+    try {
+      final dio = new Dio();
+      final data = {'amount': amount, 'currency': currency};
+
+      final resp =
+          await dio.post(_paymentApiUrl, data: data, options: headerOptions);
+
+      return PaymentIntentResponse.fromJson(resp.data);
+    } catch (e) {
+      print("Error en intento");
+      return PaymentIntentResponse(status: '400');
+    }
+  }
 
   Future _realizarPago({
     @required String amount,
